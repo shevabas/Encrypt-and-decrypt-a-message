@@ -105,6 +105,30 @@ def CaesarDecrypt(message, shift):
   time.sleep(2)
 
 #############################################################################################################
+# option 3
+'''
+MORE COMPLEX CYPHER-
+STEPS TO ENCRYPT
+1) get message
+2) get the encryption key
+3) For each letter in the message, add the index of the corresponding key letter to the index of the message letter.
+  3b) If the key is shorter than the message, repeat the key until its the same length as the message. If longer, cut it off.
+  3c) OPTIONAL- multiply the shift by the multiplier.
+4) convert those shifted values to letters
+5) print
+(called polyalphabetic cypher)
+
+STEPS TO DECRYPT
+1) get message
+2) get key
+For each letter in the encrypted message, subtract the index of the corresponding key letter from the index of the encrypted letter (reversing the shift)
+  3b) If they key is shorter than the message, repeat until its the same length. If longer, cut it off.
+  3c) OPTIONAL- multiplier. divide the shift by the multiplier (???)
+4) convert the shifted values to letters
+5) print
+'''
+
+#############################################################################################################
 
 
 
