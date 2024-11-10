@@ -1,6 +1,9 @@
 import string
 import time
 
+def pause():
+  input("Press enter to move on ")
+
 # c means character (allC = allCharacters)
 allC = string.ascii_letters
 
@@ -127,16 +130,86 @@ For each letter in the encrypted message, subtract the index of the correspondin
 4) convert the shifted values to letters
 5) print
 '''
+# option 3
+def complexEncrypt(message, key):
+  messageToList = []
+  for c in message:
+    messageToList.append(c)
+
+  # convert each letter in message into its index
+  messageAsIndexes = []
+  for c in messageToList:
+    if c in allC:
+      messageAsIndexes.append(allC.index(c))
+    else:
+      messageAsIndexes.append(c)
+
+  # remove spaces or special characters from key
+  # no code yet
+  #
+  #
+  #
+  #
+  #
+  #
+  #
+  #
+
+  # making key shorter/longer based on len(message)
+  pos = 0
+  newKey = ""
+  if len(key) > len(message):
+    for c in range(len(message)):
+      newKey += key[pos]
+      pos += 1
+  elif len(key) < len(message):
+    for c in range(len(message)):
+      newKey += key[pos]
+      pos += 1
+      if pos >= len(key):
+        pos = 0
+  else:
+    newKey = key
+  
+  # converting newKey into indexes
+  newKeyIndexes = []
+  for c in newKey:
+    newKeyIndexes.append(allC.index(c))
+
+  # getting new shifted value and looping them if its larger
+  newMessageIndexes = []
+  pos = 0
+  for c in newKey:
+    newMessageIndexes.append(messageAsIndexes[pos] + newKeyIndexes[pos])
+    # checking if index is larger than 51 and wrapping it around
+    if newMessageIndexes[pos] > len(allC)-1:
+      newMessageIndexes[pos] = len(allC[pos])-1
+    pos += 1
+
+  # converting the shifted values into letters to print out
+  newMessage = ""
+  for item in newMessageIndexes:
+    newMessage += allC[item]
+  print(f'Encrypting your message, {message}.')
+  time.sleep(1.2)
+  print(f'Your encrypted message: {newMessage}\nKey used to encrypt:    {key}')
+  pause()
+
+
+# complexEncrypt("Hello", "key")
+# complexEncrypt("Rom", "key")
+# complexEncrypt("Hi", "key")
+complexEncrypt("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", "key")
 
 #############################################################################################################
 
 
-
+'''
 while True:
   print("Main menu:")
   print("1. Caesar cypher")
   print("2. Decrypt Caesar cypher")
-  print("Anything else to leave")
+  print("3. Leave")
   option = int(input("What would you like to do?: "))
 
   if option == 1:
@@ -150,7 +223,7 @@ while True:
         break
     CaesarEncrypt(message, shift)
   
-  if option == 2:
+  elif option == 2:
     message = input("What do you want to decrypt?: ")
     while True:
       shift = int(input("How many letters was this shifted by?: "))
@@ -160,3 +233,7 @@ while True:
       else:
         break
     CaesarDecrypt(message, shift)
+
+  else:
+    break
+'''
