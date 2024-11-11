@@ -2,12 +2,12 @@ import string
 import time
 
 def pause():
-  input("")
+  input("Press enter to move on")
 
 # c means character (allC = allCharacters)
-allC = string.ascii_letters
-specialC = ['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '[', ']', '^', '_', '`', '{', '|', '}', '~']
-digits = list(string.digits)
+allC = list(string.ascii_letters + string.digits + string.punctuation)
+# specialC = ['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '[', ']', '^', '_', '`', '{', '|', '}', '~']
+# digits = list(string.digits)
 digitNames = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
 
 
@@ -113,7 +113,7 @@ def CaesarDecrypt(message, shift):
 
 #############################################################################################################
 # option 3
-'''
+'''STEPS
 MORE COMPLEX CYPHER-
 STEPS TO ENCRYPT
 1) get message
@@ -134,163 +134,89 @@ For each letter zin the encrypted message, subtract the index of the correspondi
 4) convert the shifted values to letters
 5) print
 '''
-# option 3
 def complexEncrypt(message, key):
+  # all the comments here are useful for debugging and seeing what is going on
   messageToList = list(message)
 
-  # convert each letter in message into its index. numbers are named itself. specialC arent changed. " " are named space
+  # convert each letter in message into its index based on allC. spaces are named "space"
   messageAsIndexes = []
   for c in messageToList:
     if c == " ":
       messageAsIndexes.append("space")
-    elif c in allC:
+    else:
       messageAsIndexes.append(allC.index(c))
-    elif c == "0":
-      messageAsIndexes.append("zero")
-    elif c == "1":
-      messageAsIndexes.append("one")
-    elif c == "2":
-      messageAsIndexes.append("two")
-    elif c == "3":
-      messageAsIndexes.append("three")
-    elif c == "4":
-      messageAsIndexes.append("four")
-    elif c == "5":
-      messageAsIndexes.append("five")
-    elif c == "6":
-      messageAsIndexes.append("six")
-    elif c == "7":
-      messageAsIndexes.append("seven")
-    elif c == "8":
-      messageAsIndexes.append("eight")
-    elif c == "9":
-      messageAsIndexes.append("nine")
-    else:
-      messageAsIndexes.append(c)
-
-  # remove spaces or special characters from key
-  cOnlyKey = ""
-  for c in key:
-    if c in allC:
-      cOnlyKey += c
-    else:
-      continue
   
-  # making key shorter/longer based on len(message)
+  # removing spaces in key, then making key shorter/longer based on len(message)
   pos = 0
+  keyNoSpace = ""
   newKey = ""
-  if len(cOnlyKey) > len(message):
-    for c in range(len(message)):
-      newKey += cOnlyKey[pos]
-      pos += 1
-  elif len(cOnlyKey) < len(message):
-    for c in range(len(message)):
-      newKey += cOnlyKey[pos]
-      pos += 1
-      if pos >= len(cOnlyKey):
-        pos = 0
-  else:
-    newKey = cOnlyKey
+
+  for c in key:   #removing spaces in key
+    if c != " ":
+      keyNoSpace += c
   
+  if len(keyNoSpace) > len(message):     # if len of key is > len of message, cut of the key
+    for c in range(len(message)):
+      newKey += keyNoSpace[pos]
+      pos += 1
+  elif len(keyNoSpace) < len(message):   # if len of key is < len of message, repeat key until satisfied
+    for c in range(len(message)):
+      newKey += keyNoSpace[pos]
+      pos += 1
+      if pos >= len(keyNoSpace):
+        pos = 0
+  else:                                  # if len of key = len of message, dont do anything
+    newKey = keyNoSpace
+  # print(f'Key: {newKey}')   #works
+  # pause()
+
   # converting newKey into indexes
   newKeyIndexes = []
   for c in newKey:
     newKeyIndexes.append(allC.index(c))
+  # useful for debugging- print(f'Key indexes: {newKeyIndexes}')   #works
+  # useful for debugging- pause()
 
-  # getting new shifted value and looping them if its larger
-  # lots of commented out things were debugging things
+  # getting new indexes of the message after appling the shift
+  # comments useful for debugging and seeing what is happening
   newMessageIndexes = []
   pos = 0
-  # print(f'INDEXES      {messageAsIndexes}')
-  # print(f'KEY INDEXES  {newKeyIndexes}')
   for c in messageAsIndexes:
-    # print("1. " + str(c) + "  character: " + messageToList[pos])
-    try:
-      if allC[c]:
-        # if allC[c] in list(allC):
-          # print(f'allC[c] {allC[c]}')
-          # print("2. " + str(c))
-          newMessageIndexes.append(c + newKeyIndexes[pos])
-          # print(f'3. ADDED SHIFT {messageAsIndexes[pos]} + {newKeyIndexes[pos]}.  {newMessageIndexes[pos]}')
-          # pause()
-          if newMessageIndexes[pos] > 51:
-            newMessageIndexes[pos] %= 51
-            # print(f'4. ROLLED BACK {messageAsIndexes[pos]} + {newKeyIndexes[pos]}.  {newMessageIndexes[pos]}')
-          pos += 1
-        # print("7. END")
-        # print(newMessageIndexes)
-        # pause()
-    except:
-      if c == "space":
-          newMessageIndexes.append("space")
-          # pause()
-      elif c in digitNames:
-          # print("5. " + str(c))
-          newMessageIndexes.append(c)
-      else:
-        # print("6. " + str(c))
-        newMessageIndexes.append(c)
-      pos += 1
-      # print("7. END")
-      # print(newMessageIndexes)
+    # print(f"INDEX {c}.  CHARACTER -{messageToList[pos]}-")
+    if c == "space":
+      newMessageIndexes.append(c)
+      # print(f"ADDED SPACE {newMessageIndexes}")
       # pause()
-  # print(f'AFTER SHIFT  {newMessageIndexes}')
-
+      pos += 1
+    else:
+      # print(f"ADDING SHIFT ({newKeyIndexes[pos]})")
+      # pause()
+      shiftAmount = messageAsIndexes[pos] + newKeyIndexes[pos]
+      if shiftAmount > (len(allC)-1):
+        shiftAmount %= (len(allC)-1)
+      #   print(f"ROLLED BACK TO INDEX {shiftAmount}")
+      #   pause()
+      # print(f'ADDED SHIFT. NEW allC INDEX: {shiftAmount}')
+      newMessageIndexes.append(shiftAmount)
+      # print(f"MESSAGE NOW {newMessageIndexes}")
+      # pause()
+      pos += 1
+  # print(f'NEW MESSAGE INDEXES {newMessageIndexes}')
+ 
   # converting the shifted values into letters to print out
-  # lots of commented out things were debugging things
   newMessage = ""
   for item in newMessageIndexes:
-    # print(f'ITEM {item}')
-    # pause()
-    try:
-      if allC[item] in list(allC):
-        # print(f'YES ITS IN ALL C   {item}')
-        newMessage += allC[item]
-        # print(newMessage)
-        # pause()
-    except:
-      if item in digitNames:
-        # print(f'ITS A DIGIT  {item}')
-        # pause()
-        if item == "zero":
-          newMessage += "0"
-        if item == "one":
-          newMessage += "1"
-        if item == "two":
-          newMessage += "2"
-        if item == "three":
-          newMessage += "3"
-        if item == "four":
-          newMessage += "4"
-        if item == "five":
-          newMessage += "5"
-        if item == "six":
-          newMessage += "6"
-        if item == "seven":
-          newMessage += "7"
-        if item == "eight":
-          newMessage += "8"
-        if item == "nine":
-          newMessage += "9"
-        # print(newMessage)
-        # pause()
-      elif item == "space":
-        # print("ITS A SPACE")
-        newMessage += " "
-        # print(newMessage)
-        # pause()
-      else:
-        # print(f'NOT A DIGIT OR SPACE {item}')
-        # pause()
-        newMessage += item
-        # print(newMessage)
-        # pause()
+    if item == "space":
+      newMessage += " "
+    else:
+      newMessage += allC[item]
+    
   print(f'Encrypting your message, "{message}"')
-  time.sleep(len(message)/30)
-  print(f'Your encrypted message: {newMessage}\nKey used to encrypt:    {key}')
+  time.sleep(len(message)/25) # make it seem like its doing work. if its a long message, wait longer. smaller number = longer times
+  print(f'Your encrypted message: {newMessage}\nKey used to encrypt: {key}')
   pause()
 
-complexEncrypt("Time to invade: 14:00", "key")
+complexEncrypt("Time to invade: 14:00.", "Srgt. Sanders")
 
 
 #############################################################################################################
