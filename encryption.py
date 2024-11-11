@@ -1,14 +1,19 @@
 import string
 import time
+import random
+
+with open("/home/johnny/Downloads/VSCODE/all_english_words.txt", "r") as file:
+    contents = file.readlines()
+def randomWord():
+    return random.choice(contents).strip()
 
 def pause():
   input("Press enter to move on")
 
 # c means character (allC = allCharacters)
 allC = list(string.ascii_letters + string.digits + string.punctuation)
-# specialC = ['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '[', ']', '^', '_', '`', '{', '|', '}', '~']
-# digits = list(string.digits)
 digitNames = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
+
 
 
 ########################################################################################################
@@ -65,6 +70,7 @@ def CaesarEncrypt(message, shift):
   print(f'Characters Shifted:\n{shift}')
   time.sleep(2)
 
+
 #############################################################################################################
 # option 2
 def CaesarDecrypt(message, shift):
@@ -111,11 +117,10 @@ def CaesarDecrypt(message, shift):
   print(newMessage)
   time.sleep(2)
 
+
 #############################################################################################################
 # option 3
-'''STEPS
-MORE COMPLEX CYPHER-
-STEPS TO ENCRYPT
+'''STEPS TO ENCRYPT
 1) get message
 2) get the encryption key
 3) For each letter in the message, add the index of the corresponding key letter to the index of the message letter.
@@ -124,23 +129,11 @@ STEPS TO ENCRYPT
 4) convert those shifted values to letters
 5) print
 (called polyalphabetic cypher)
-
-STEPS TO DECRYPT
-1) get message
-2) get key
-For each letter zin the encrypted message, subtract the index of the corresponding key letter from the index of the encrypted letter (reversing the shift)
-  3b) If they key is shorter than the message, repeat until its the same length. If longer, cut it off.
-  3c) OPTIONAL- multiplier. divide the shift by the multiplier (???)
-4) convert the shifted values to letters
-5) print
 '''
 def complexEncrypt(message, key):
-  # all the comments here are useful for debugging and seeing what is going on
-  messageToList = list(message)
-
   # convert each letter in message into its index based on allC. spaces are named "space"
   messageAsIndexes = []
-  for c in messageToList:
+  for c in list(message):
     if c == " ":
       messageAsIndexes.append("space")
     else:
@@ -150,58 +143,42 @@ def complexEncrypt(message, key):
   pos = 0
   keyNoSpace = ""
   newKey = ""
-
-  for c in key:   #removing spaces in key
+  for c in key:
     if c != " ":
       keyNoSpace += c
   
-  if len(keyNoSpace) > len(message):     # if len of key is > len of message, cut of the key
+  if len(keyNoSpace) > len(message):
     for c in range(len(message)):
       newKey += keyNoSpace[pos]
       pos += 1
-  elif len(keyNoSpace) < len(message):   # if len of key is < len of message, repeat key until satisfied
+  elif len(keyNoSpace) < len(message):
     for c in range(len(message)):
       newKey += keyNoSpace[pos]
       pos += 1
       if pos >= len(keyNoSpace):
         pos = 0
-  else:                                  # if len of key = len of message, dont do anything
+  else:
     newKey = keyNoSpace
-  # print(f'Key: {newKey}')   #works
-  # pause()
 
   # converting newKey into indexes
   newKeyIndexes = []
   for c in newKey:
     newKeyIndexes.append(allC.index(c))
-  # useful for debugging- print(f'Key indexes: {newKeyIndexes}')   #works
-  # useful for debugging- pause()
 
   # getting new indexes of the message after appling the shift
-  # comments useful for debugging and seeing what is happening
   newMessageIndexes = []
   pos = 0
   for c in messageAsIndexes:
-    # print(f"INDEX {c}.  CHARACTER -{messageToList[pos]}-")
     if c == "space":
       newMessageIndexes.append(c)
-      # print(f"ADDED SPACE {newMessageIndexes}")
-      # pause()
       pos += 1
     else:
-      # print(f"ADDING SHIFT ({newKeyIndexes[pos]})")
-      # pause()
       shiftAmount = messageAsIndexes[pos] + newKeyIndexes[pos]
       if shiftAmount > (len(allC)-1):
         shiftAmount %= (len(allC)-1)
-      #   print(f"ROLLED BACK TO INDEX {shiftAmount}")
-      #   pause()
-      # print(f'ADDED SHIFT. NEW allC INDEX: {shiftAmount}')
       newMessageIndexes.append(shiftAmount)
-      # print(f"MESSAGE NOW {newMessageIndexes}")
-      # pause()
       pos += 1
-  # print(f'NEW MESSAGE INDEXES {newMessageIndexes}')
+
  
   # converting the shifted values into letters to print out
   newMessage = ""
@@ -212,26 +189,116 @@ def complexEncrypt(message, key):
       newMessage += allC[item]
     
   print(f'Encrypting your message, "{message}"')
-  time.sleep(len(message)/25) # make it seem like its doing work. if its a long message, wait longer. smaller number = longer times
+  time.sleep(len(message)/75) # make it seem like its doing work. if its a long message, wait longer. smaller number = longer times
   print(f'Your encrypted message: {newMessage}\nKey used to encrypt: {key}')
   pause()
 
-complexEncrypt("Time to invade: 14:00.", "Srgt. Sanders")
+# complexEncrypt("Time to invade: 14:00.", "python")
+
+
+#############################################################################################################
+# option 4
+'''STEPS TO DECRYPT
+STEP 1) convert message into indexes
+  make each character a list by list(message)
+  spaces are ignored and replaced by "space"
+
+STEP 2) convert the indexes into characters
+  find the indexes of STEP 1) (ignore spaces) in allC and assign that to a list.
+  that list will contain the indexes of the characters after the shift
+
+STEP 3) subtract the shift from each index in the key from the index of each character
+  get key and make it have same characters as len(message).
+    remove spaces from it as well
+  get index of each c in the newKey
+  subract the index at a pos (STEP 2)) by the index of the newKey at that same pos (prev step)
+    if its a negative, you need to wrap around by adding len(allC) to it
+
+
+STEP 4) convert those new indexes into characters and put them into final message
+  find those indexes in allC and add them into a final message
+
+STEP 5) print final message
+'''
+def complexDecrypt(message, key):
+  # comments are useful for debugging
+  # convert to indexes
+  messageIndexes = []
+  for c in list(message):
+    if c == " ":
+      messageIndexes.append("space")
+    else:
+      messageIndexes.append(allC.index(c))
+
+  # removing spaces from key
+  keyNoSpace = []
+  for c in list(key):
+    if c in list(allC):
+      keyNoSpace.append(c)
+
+  # making key same len as message.   same code as encrypt
+  newKey = ""
+  pos = 0
+  if len(keyNoSpace) > len(message):
+    for c in range(len(message)):
+      newKey += keyNoSpace[pos]
+      pos += 1
+  elif len(keyNoSpace) < len(message):
+    for c in range(len(message)):
+      newKey += keyNoSpace[pos]
+      pos += 1
+      if pos >= len(keyNoSpace):
+        pos = 0
+  else:
+    newKey = keyNoSpace
+
+  # index of each c in newKey
+  newKeyIndexes = []
+  for c in list(newKey):
+    newKeyIndexes.append(allC.index(c))
+
+  # adding the shift (subtracting the index of)
+  newMessageIndexes = []
+  pos = 0
+  for item in messageIndexes:
+    if item == "space":
+      newMessageIndexes.append(item)
+      pos += 1
+    else:
+      shiftAmount = messageIndexes[pos] - newKeyIndexes[pos]
+      if shiftAmount < 0:
+        shiftAmount += len(allC)-1
+      newMessageIndexes.append(shiftAmount)
+      pos += 1
+
+  # converting the values into letters and printing
+  newMessage = ""
+  for item in newMessageIndexes:
+    if item == "space":
+      newMessage += " "
+    else:
+      newMessage += allC[item]
+  print(f'Decrypting your message, "{message}"')
+  time.sleep(len(message)/65)
+  print(f'Your decrypted message: {newMessage}\nKey used to encrypt: {key}')
+  pause()
+# complexDecrypt("8GFl GD BuJnsCd &(}/*?", "python")
 
 
 #############################################################################################################
 
 
-'''
+
 while True:
   print("Main menu:")
   print("1. Caesar cypher")
   print("2. Decrypt Caesar cypher")
   print("3. Complex cypher")
+  print("4. Complex decrypt")
   print("4. Leave")
-  option = int(input("What would you like to do?: "))
+  option = input("What would you like to do?: ")
 
-  if option == 1:
+  if option == "1":
     message = input("What message do you want to encrypt?: ")
     while True:
       shift = int(input("How many letters do you want to shift by?: "))
@@ -242,7 +309,7 @@ while True:
         break
     CaesarEncrypt(message, shift)
   
-  elif option == 2:
+  elif option == "2":
     message = input("What do you want to decrypt?: ")
     while True:
       shift = int(input("How many letters was this shifted by?: "))
@@ -253,10 +320,15 @@ while True:
         break
     CaesarDecrypt(message, shift)
 
-  elif option == 3:
+  elif option == "3":
     message = input("What do you want to encrypt?: ")
-    key = input("What key will you use to encrypt it?: ")
+    key = input("What key will you use to encrypt it (longer keys are more secure)?: ")
     complexEncrypt(message, key)
+  
+  elif option == "4":
+    message = input("What do you want to decrypt?: ")
+    key = input("What was the key used?: ")
+    complexDecrypt(message, key)
+  
   else:
     break
-'''
